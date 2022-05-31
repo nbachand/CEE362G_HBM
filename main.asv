@@ -56,8 +56,7 @@ H_pool = satellite_H(y,4);
 H = H_pool*H;
 y = H_pool*y;
 
-
-num_data = length(y);
+num_data = length(meas_t);
 
 
 %% Prior Assumptions (Q, R, X, theta
@@ -74,8 +73,8 @@ R0(1:10)
 
 X_mu = zeros(num_time_steps,3);
 X_mu(:,1) = 1;
-X_mu(floor(62/kernel_size):ceil(82/kernel_size),2) = 1;
-X_mu(floor(112/kernel_size):ceil(122/kernel_size),3) = 1;
+X_mu(floor(62/kernel_size):ceil(82/kernel_size,2)) = 1;
+X_mu(floor(112:122,3) = 1;
 
 th = [theta1, theta2];
 
