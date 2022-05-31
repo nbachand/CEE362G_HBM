@@ -1,13 +1,12 @@
-%% Assignment 2
-% Nicholas Bachand
+%% Project
+% Nicholas Bachand and Haley So
 
 clear
 clf
 close all
-%% Problem 1
-
+%% Loading Data and Setting Parameters
 data = importdata("data_snod_2021.txt");
-% figure(); plot(data(:,1), data(:,2))
+%figure(); plot(data(:,1), data(:,2))
 
 x = 1000;
 u = 1;
@@ -17,7 +16,7 @@ f = @(T) x./(2.*sqrt(pi.*D.*T.^3)).*exp(-((x-u.*T).^2)/(4.*D.*T));
 x_test = 1:1:2000;
 %figure(); plot(x_test, arrayfun(f, x_test))
 
-%% 1)
+%% Measurement Window and Frequency
 meas_t = 1026:1:1249;
 del_tau = 1;
 signal_width = 300;
@@ -33,6 +32,8 @@ fprintf('\n delta tau is %i day \n', del_tau);
 num_data = length(meas_t);
 num_time_steps = length(source_tau);
 
+%% Building advection-diffusion H
+
 H = zeros(num_data, num_time_steps);
 
 i = 1;
@@ -47,12 +48,9 @@ for t = meas_t
     i = i +1;
 end
 
-H(1:10,1:10);
-
-%% 2)
-%% Q and R matrices
+%% Prior Assumptions (Q, R, X, theta
 % Introduce a covariance matrix
-theta1 = 1; theta2 = -8;
+theta1 = 1; theta2 = -1;
 xg = source_tau;
 
 q =@(x) -abs(x) ;
@@ -62,88 +60,31 @@ R0 = eye(num_data);
 Q0(1:10,1:10)
 R0(1:10)
 
-%% Metropolis-Hastings
-%Program the 
-
-X_mu = ones(num_time_steps,1);
-th = [theta1, theta2];
-
-N = 100; %length of the chain
-th_MC = MCMC(H, X_mu, y, Q0, R0, N, th);
-
-%% get thetas from mode
-theta(1) = hist_mode(th_MC(:,1), '\theta_1');
-theta(2) = hist_mode(th_MC(:,2), '\theta_1');
-sprintf('Theta1: %g., Theta2: %g', round(theta(1),2), round(theta(2),2))
-
-%% Updated Q and R
-
-Q = (10^theta(1))*Q0;
-R = (10^theta(2))*R0;
-
-%% Inversion
-[s,Sigma,LAMBDA,MU] = GenLinInv(y,H,R,X_mu,Q);
-% figure()
-% plot(xg,s)
-%% Mean and Confidence Intervals
-s_upp = s + 2*sqrt(diag(Sigma));
-s_lower = s - 2*sqrt(diag(Sigma));
-
-figure()
-plot(xg,s,xg,s_lower,xg,s_upp)
-title('mean and lower/upper confidence intervals')
-ylabel("s")
-xlabel("days")
-
-%% 3)
-ds = diff(s);
-figure(); plot(xg(1:end-1), ds)
-
-title("derivative of estimated s")
-
-%% Hypothetical
-hyp_true = zeros(num_time_steps,1);
-hyp_true(50:70) = 1;
-
-y_hyp = H*hyp_true;
-
-[s_hyp,Sigma,LAMBDA,MU] = GenLinInv(y_hyp,H,R,X_mu,Q);
-
-figure(); plot(xg, hyp_true, xg, s_hyp)
-
-legend("true", "estimate")
-title("hypothetical")
-ylabel("s")
-xlabel("days")
-
-
-
-
-%% 4)
-%% Hierarchical Log-Linear with Prior Information
 X_mu = zeros(num_time_steps,3);
 X_mu(:,1) = 1;
 X_mu(62:82,2) = 1;
 X_mu(112:122,3) = 1;
 
-N = 10000; %length of the chain
+th = [theta1, theta2];
+
+%% MCMC Parameter Search
+
+N = 1000; %length of the chain
 th_MC = MCMC(H, X_mu, y, Q0, R0, N, th);
 
-%% get thetas from mode
+%% Get Theta from Hist Mode
 theta(1) = hist_mode(th_MC(:,1), '\theta_1');
 theta(2) = hist_mode(th_MC(:,2), '\theta_1');
 sprintf('Theta1: %g., Theta2: %g', round(theta(1),2), round(theta(2),2))
 
 
 %% Updated Q and R
-
 Q = (10^theta(1))*Q0;
 R = (10^theta(2))*R0;
 
 %% Inversion
 [s,Sigma,LAMBDA,MU] = GenLinInv(y,H,R,X_mu,Q);
-% figure()
-% plot(xg,s)
+
 %% Mean and Confidence Intervals
 s_upp = s + 2*sqrt(diag(Sigma));
 s_lower = s - 2*sqrt(diag(Sigma));
@@ -153,4 +94,10 @@ plot(xg,s,xg,s_lower,xg,s_upp)
 title('mean and lower/upper confidence intervals')
 ylabel("s")
 xlabel("days")
+
+%% Plot ds
+ds = diff(s);
+figure(); plot(xg(1:end-1), ds)
+
+title("derivative of estimated s")
 
