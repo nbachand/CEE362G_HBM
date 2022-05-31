@@ -1,4 +1,4 @@
-function [th_M] = untitled(H, X, Q0, R0)
+function [th_MC] = MCMC(H, X, y, Q0, R0, N, th_init)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 PHI = H*X;
@@ -11,9 +11,8 @@ C = @(th) T*(10^th(1)*H*Q0*H' + ...
 L = @(th) -0.5*logdet(C(th)) - ...
     0.5*z'*(C(th)\z);
 
-N = 100; %length of the chain
 th_MC = zeros(N,2); %declaration/allocation with zeros
-th_MC(1,:) = [1.1,-4.2]; %initialization 
+th_MC(1,:) = th_init; %initialization 
 for k = 2:N
     %generate candidates
     th_MC(k,:) = th_MC(k-1,:) + [0.1*randn,0.01*randn];

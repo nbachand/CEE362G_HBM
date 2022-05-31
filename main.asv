@@ -126,8 +126,8 @@ X_mu(:,1) = 1;
 X_mu(62:82,2) = 1;
 X_mu(112:122,3) = 1;
 
-N = 10000; %length of the chain
-th_MC = MCMC(H, X_mu, y, Q0, R0, N, th);
+N = 1000; %length of the chain
+th_MC = MCMC(H, X_mu, y, Q0, R0, N, th)
 
 %% get thetas from mode
 theta(1) = hist_mode(th_MC(:,1), '\theta_1');
