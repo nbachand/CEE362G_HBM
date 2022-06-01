@@ -51,8 +51,9 @@ end
 %% Adding on sattellite measurements (average pooling)
 
 kernel_size = 4;
-
-H_pool = satellite_H(y,4);
+% added gaussian noise with stddev of 0.01. Output size is 56 to match Nick's H pooling matrix.
+[H_pool, x_sampled, s_out] = average_H(meas_t, y, kernel_size, 56, 0.01);
+% H_pool = satellite_H(y,4);
 H = H_pool*H;
 y = H_pool*y;
 
