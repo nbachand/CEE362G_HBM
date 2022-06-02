@@ -1,7 +1,7 @@
 # CEE362G_HBM
 CEE362G final project
 
-For spatial and temporal release of source reconstruction,
+To reconstruct temporal release of multipe sources in a grid given measurements at detectors,
 
 1. simulate data using create_2D_data.m. You can change number of detectors and locations (D_loc) easily, and this file will output your captured data at these detector locations in methane_data.txt. Currently, the velocity is 0 for simplicity. You can also change source locations (S_loc) and their release patterns, but to add sources, you'll have to modify a bit more, but pattern matching makes it easy to see what needs to be modified. We then add noise to the datapoints. The format of the data saved goes as follows: 1st column are the times of our measurements. Subsequent columns are the measurments at the detectors. Each column corresponds to a different detector.
 
