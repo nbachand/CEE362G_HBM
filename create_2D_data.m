@@ -1,23 +1,30 @@
 clear, close all
 
-% 3 sources at 3 locations s1, s2, s3. They each have mag/time release
-% vector rel1, rel2, rel3 that tells us the ground truth. 
+% 4 sources at 4 locations s1, s2, s3, s4. They each have mag/time release
+% vector rel1, rel2, rel3, rel4 that tells us the ground truth. 
 % we can calc concentration map for x,y grid given s_i and rel_i
-% The concentration at each detector point is the sum of the 3
+% The concentration at each detector point is the sum of the 4
 % concentration maps. -- ASSUMPTION. Further work would involve interplay
-% of multiple sources.
+% of multiple sources. You can easily change the number of detectors by 
+% adding/changing the positions in the D_loc vector. Then running this file 
+% will create data in file methane_data.txt. The first column are the times
+% you are measuring at. The subsequent columns are the measurement values.
+% Each column corresponds to a different detector. Make sure the D_loc and
+% S_loc locations match in this file and the air_pollution.m file.
+
+% The source number is set to 4. You can modify the true signals. If you 
+% want to add number more sources, there's a bit more you'll have to modify. 
 %% Data
 u = [0,0]; %Vel [m/day]
 D = 1.9094; %Diffusion [m^2/day]
 %impulse response function
-
 f = @(s_l, d_l, T) diffusion_f(s_l, d_l, T, D, u);
+
 % f = @(s_l, d_l, T) (norm(s_l-d_l))./sqrt(4*pi*D*T.^3).*exp(-(norm(d_l-s_l).^2./(4*D*T)));
 % f = @(s_l, d_l, T) (norm(s_l-d_l))./sqrt(4*pi*D*T.^3).*exp(-(norm(d_l-s_l-u*T).^2./(4*D*T)));
 % f = @(s_l, d_l, T) (norm(s_l-d_l))./sqrt(4.*pi.*D.*T.^3).*exp(-(vecnorm((d_l'-s_l').*ones(size(u'*T))-u'*T).^2./(4*D*T)));
 %% Simulate data
 D_loc = [5,8; 8,12; 12,6; 16,3; 14,14;10,2;20,1;3,5;1,15;18,10]; % detector locations
-D_loc = [5,8; 8,12; 12,6];
 S_loc = [4,10; 6,3; 10,12; 16,7;]; % source locations
 
 n_sources = 4;
@@ -64,13 +71,11 @@ san3 = @(t) background*ones(size(t));
 san4 = @(t) background*2*ones(size(t));
 
 figure(2)
-
 plot(taus,s_gt(:,1),taus,s_gt(:,2),taus,s_gt(:,3), 'm', taus,s_gt(:,4), 'c', taus,san1(taus),'b:', taus,san2(taus), 'r:', taus,san3(taus), 'm:', taus,san3(taus), 'c:')
 title('"True" release')
 xlabel('time (days)')
 ylabel('release')
 legend('source 1', 'source 2', 'source 3','source 4','source 1 analytical', 'source 2 analytical', 'source 3 analytical', 'source 4 analytical');
-% legend('source 1','source 1 analytical');
 
 %% concentration observations
 n = 221;    %number of observations
@@ -80,8 +85,6 @@ t = (ts:1:te)'; %times of sampling
 s1 = S_loc(1,:); s2 = S_loc(2,:); s3 = S_loc(3,:); s4 = S_loc(4,:); 
 conc = zeros(n, n_detectors); %per detector, we get samples at different times
 
-% tau is the source times
-% tau = 10:.01:400;
 for niter = 1:n % for each time sample
     for i=1:n_detectors % for each of the n_detectors, find the concentrations
         F1 = @(tau) f(s1, D_loc(i,:),t(niter)-tau).*san1(tau);
@@ -112,8 +115,9 @@ methane_data = [t,y];
 save methane_data.txt -ascii methane_data
 % end simulate data 
 
-%% MISC
-%% -------------------- create a video -------------------------------
+%% MISC:
+% This attempts to create a video of the diffusion of 2 sources. Takes a
+% little bit of time.
 % Concentration map from 1 s_i
 % x = (0:0.01:20);
 % y = (0:0.01:15);
