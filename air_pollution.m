@@ -1,4 +1,4 @@
-% Methane
+%% Get estimates from data
 clear, close all
 
 u = [0,0]; %Vel [m/day] (of wind or something. We will try both 0 velocity so it's just diffusion and we will try constant velocity wind)
@@ -19,7 +19,6 @@ m = length(tsource);
 
 %% Select detector and source locations
 D_loc = [5,8; 8,12; 12,6; 16,3; 14,14;10,2;20,1;3,5;1,15;18,10]; % detector locations
-D_loc = [5,8; 8,12; 12,6];
 S_loc = [4,10; 6,3; 10,12; 16,7;];
 
 figure(1); hold on
@@ -31,13 +30,13 @@ xlabel('(m)'), ylabel('(m)');
 xlim([0 20])
 ylim([0 15])
 hold off
-% figure(1); hold on
-% scatter(S_loc(:,1),S_loc(:,2), 'r' );
-% title('Source Locations');
-% xlabel('(m)'), ylabel('(m)');
-% xlim([0 20])
-% ylim([0 15])
-% hold off
+figure(1); hold on
+scatter(S_loc(:,1),S_loc(:,2), 'r' );
+title('Source Locations');
+xlabel('(m)'), ylabel('(m)');
+xlim([0 20])
+ylim([0 15])
+hold off
 
 
 %% Construct H matrix for single detector
